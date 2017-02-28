@@ -1,6 +1,6 @@
 {
   "name": "freesidejs",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Freeside API wrapper",
   "main": "freeside.js",
   "scripts": {

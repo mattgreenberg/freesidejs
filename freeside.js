@@ -34,7 +34,6 @@ module.exports = (function(){
 			if(Array.isArray(res)){
 				for(var value in res){
 					var temp = res[value];
-					console.dir(temp);
 					delta[temp.name] = temp.value.string;
 				}	
 			} else {
