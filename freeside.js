@@ -3,7 +3,7 @@ var http = require('http');
 module.exports = (function(){
 
 	var free = function(){
-		this.hostname = "127.0.0.1";
+		this.hostname = "10.1.2.2";
 		this.port = 8080;
 		this.timeout = 15000;
 	}
@@ -29,22 +29,57 @@ module.exports = (function(){
 	free.prototype.unpack = function(xml, callback){
 
 		require('xml2js').parseString(xml, { explicitArray : false, ignoreAttrs : true }, function(err,res){
-			res = res.methodResponse.params.param.value.struct.member;
-			var delta = {};
-			if(Array.isArray(res)){
-				for(var value in res){
-					var temp = res[value];
-					delta[temp.name] = temp.value.string;
-				}	
-			} else {
-				delta[res.name] = res.value.string;
+			
+			var xmlMemebers;
+			var returnData = {};
+
+			// check for server fault.
+			if(res.methodResponse.fault != null){
+
+				xmlMembers = res.methodResponse.fault.value.struct.member;
+				if(Array.isArray(xmlMembers)){
+
+					for(var member in xmlMembers){
+
+						var memberVal = xmlMembers[member];
+						if(memberVal.value.string != null){
+							returnData[memberVal.name] = memberVal.value.string;
+						} else {
+							returnData[memberVal.name] = undefined;
+						}
+
+					}
+
+				}
+				return callback(returnData);
+
 			}
-			callback(delta);
+			
+			// unpack response starts here if not faulted
+			xmlMembers = res.methodResponse.params.param.value.struct.member;
+			if(Array.isArray(xmlMembers)){
+
+				for(var member in xmlMembers){
+
+					var memberVal = xmlMembers[member];
+
+					if(memberVal.value.string != null){
+						returnData[memberVal.name] = memberVal.value.string;
+					} else if (memberVal.value.array != null){
+						returnData[memberVal.name] = unpackArray(memberVal.value.array);
+					} else {
+						returnData[memberVal.name] = undefined;
+					}
+	
+				}
+			} else {
+				returnData[xmlMembers.name] = xmlMembers.value.string;
+			}
+			callback(returnData);
 		});
 
 	}
 
-	// send xml post to the server
 	free.prototype.post = function(requestBody, callback){
 
 		var postRequest = {
@@ -62,30 +97,63 @@ module.exports = (function(){
 
 		var req = http.request(postRequest, function(res){
 			res.on("data", function(data){ buffer += data });
-			res.on("end", function(data){
+			res.on("end", function(data){ 
 				clearTimeout(timed);
-				callback(buffer) 
+				callback(buffer);
 			});
 		});
 
 		req.on('error', function(e){
 			if(e.toString() != 'Error: socket hang up'){
-				utils.log.error(e);
+				console.error(e.toString());
 			}	
 			callback(false);
 		});
 
 		timed = setTimeout(function(){
 			req.abort();
-			console.log("Request Timed Out:" + JSON.stringify(postRequest));
+			console.error("Request Timed Out: " + JSON.stringify(postRequest));
 		}, this.timeout);
-
 
 		req.write(requestBody);
 		req.end();
 
-	};	
+	};
+
 
 	return new free();
+
+	// method to unpack the array values into normal json
+	function unpackArray(input){
+
+		var returnData = [];
+
+		// strip down object to get to array
+		var xmlArray = input.data.value;
+
+		if(Array.isArray(xmlArray)){
+
+			for(var obj in xmlArray){
+
+				var xmlObj = xmlArray[obj];
+				var memberArray = xmlObj.struct.member;
+				var tempObj = {};
+
+				for(var index in memberArray){
+
+					var member = memberArray[index];
+					tempObj[member.name] = member.value.string;
+
+				}
+
+				returnData.push(tempObj);
+
+			}
+
+		}
+
+		return returnData;
+
+	};
 
 })();
