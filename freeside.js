@@ -150,6 +150,23 @@ module.exports = (function(){
 
 			}
 
+		} else {
+
+			if(xmlArray != undefined){
+				
+				var tempObj = {};
+				var memberArray = xmlArray.struct.member;
+				for(var index in memberArray){
+
+					var member = memberArray[index];
+					tempObj[member.name] = member.value.string;
+
+				}
+
+				returnData.push(tempObj);
+
+			} 
+
 		}
 
 		return returnData;
