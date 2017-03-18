@@ -136,17 +136,26 @@ module.exports = (function(){
 			for(var obj in xmlArray){
 
 				var xmlObj = xmlArray[obj];
-				var memberArray = xmlObj.struct.member;
-				var tempObj = {};
 
-				for(var index in memberArray){
+				if(xmlObj.string != undefined){
 
-					var member = memberArray[index];
-					tempObj[member.name] = member.value.string;
+					returnData.push(xmlObj.string);
+
+				} else {
+
+					var memberArray = xmlObj.struct.member;
+					var tempObj = {};
+
+					for(var index in memberArray){
+
+						var member = memberArray[index];
+						tempObj[member.name] = member.value.string;
+
+					}
+
+					returnData.push(tempObj);
 
 				}
-
-				returnData.push(tempObj);
 
 			}
 
