@@ -73,7 +73,15 @@ module.exports = (function(){
 	
 				}
 			} else {
-				returnData[xmlMembers.name] = xmlMembers.value.string;
+
+				if(xmlMembers.value.string != null){
+					returnData[xmlMembers.name] = xmlMembers.value.string;
+				} else if (xmlMembers.value.array != null){
+					returnData[xmlMembers.name] = unpackArray(xmlMembers.value.array);
+				} else {
+					returnData[xmlMembers.name] = undefined;
+				};
+
 			}
 			callback(returnData);
 		});
