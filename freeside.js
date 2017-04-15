@@ -67,8 +67,36 @@ module.exports = (function(){
 						returnData[memberVal.name] = memberVal.value.string;
 					} else if (memberVal.value.array != null){
 						returnData[memberVal.name] = unpackArray(memberVal.value.array);
+					} else if (memberVal.value.struct && memberVal.value.struct.member != null){
+						
+						var nestedMembers = memberVal.value.struct.member;
+						var tempObj = {};
+						if(Array.isArray(nestedMembers)){
+							
+							for(var member in nestedMembers){
+
+								var tempMem = nestedMembers[member];
+								if(tempMem.value.string != null){
+									tempObj[tempMem.name] = tempMem.value.string;
+								} else {
+									tempObj[tempMem.name] = undefined;
+								}
+
+							}
+
+							returnData[memberVal.name] = tempObj;
+
+						} else {
+
+							returnData[memberVal.name] = undefined;
+							
+						}
+
+
 					} else {
+
 						returnData[memberVal.name] = undefined;
+
 					}
 	
 				}
