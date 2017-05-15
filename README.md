@@ -50,7 +50,7 @@ var xmlData = Freeside.pack("login", {
 </methodCall>
 ```
 
-**Acceptable methodName Strings**
+**Acceptable methodName Strings (some are deprecated, check freeside docs)**
 'passwd'
 'chfn'
 'chsh'
@@ -190,6 +190,7 @@ var xmlData = Freeside.pack("login", {
 Freeside.post(xmlData, function(results){
     console.log(results); // will be xml-rpc response body
 });
+
 ```
 ___
 ## Full Use Example
@@ -228,4 +229,5 @@ Freeside.post(xmlData, function(xmlResponse){
         });
     }
 
-}); 
+});
+

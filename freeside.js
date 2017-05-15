@@ -65,6 +65,8 @@ module.exports = (function(){
 
 					if(memberVal.value.string != null){
 						returnData[memberVal.name] = memberVal.value.string;
+					} else if (memberVal.value.base64 != null){
+						returnData[memberVal.name] = {base64: memberVal.value.base64};
 					} else if (memberVal.value.array != null){
 						returnData[memberVal.name] = unpackArray(memberVal.value.array);
 					} else if (memberVal.value.struct && memberVal.value.struct.member != null){
@@ -106,6 +108,8 @@ module.exports = (function(){
 					returnData[xmlMembers.name] = xmlMembers.value.string;
 				} else if (xmlMembers.value.array != null){
 					returnData[xmlMembers.name] = unpackArray(xmlMembers.value.array);
+				} else if (xmlMembers.value.base64){
+					returnData[xmlMembers.name] = {base64: xmlMembers.value.base64};					
 				} else {
 					returnData[xmlMembers.name] = undefined;
 				};
